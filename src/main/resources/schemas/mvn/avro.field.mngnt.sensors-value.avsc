@@ -1,0 +1,1 @@
+{"type":"record","name":"fleet_mgmt_sensors","namespace":"fleet_mgmt","fields":[{"name":"vehicle_id","type":"int"},{"name":"engine_temperature","type":"int"},{"name":"average_rpm","type":"int"}],"connect.name":"fleet_mgmt.fleet_mgmt_sensors"}

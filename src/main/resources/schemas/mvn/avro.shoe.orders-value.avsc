@@ -1,0 +1,1 @@
+{"type":"record","name":"shoe_orders","namespace":"shoes","fields":[{"name":"order_id","type":"int"},{"name":"product_id","type":"string"},{"name":"customer_id","type":"string"},{"name":"ts","type":{"type":"long","connect.version":1,"connect.name":"org.apache.kafka.connect.data.Timestamp","logicalType":"timestamp-millis"}}],"connect.name":"shoes.shoe_orders"}

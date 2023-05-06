@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: leaderboard-player-schema
+data:
+  schema: |
+    {
+      "type": "record",
+      "namespace": "io.nermdev.schemas.avro.leaderboards",
+      "name": "Player",
+      "fields": [
+        {
+          "name": "id",
+          "type": "long"
+
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    }
+---
+
+apiVersion: platform.confluent.io/v1beta1
+kind: Schema
+metadata:
+  name: leaderboard.player
+spec:
+  name: leaderboard.players-value
+  data:
+    configRef: leaderboard-player-schema
+    format: avro
+  compatibilityLevel: BACKWARD
+  schemaRegistryClusterRef:
+    name: sr
+

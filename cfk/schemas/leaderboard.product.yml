@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: leaderboard-product-schema
+data:
+  schema: |
+    {
+      "type": "record",
+      "namespace": "io.nermdev.schemas.avro.leaderboards",
+      "name": "Product",
+      "fields": [
+        {
+          "name": "id",
+          "type": "long"
+
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    }
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Schema
+metadata:
+  name: leaderboard.product
+spec:
+  name: leaderboard.products-value
+  data:
+    configRef: leaderboard-product-schema
+    format: avro
+  compatibilityLevel: BACKWARD
+  schemaRegistryClusterRef:
+    name: sr
+

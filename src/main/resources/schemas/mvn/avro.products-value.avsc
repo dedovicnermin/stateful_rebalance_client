@@ -1,0 +1,1 @@
+{"type":"record","name":"product","namespace":"ksql","fields":[{"name":"id","type":"long"},{"name":"name","type":"string"},{"name":"description","type":"string"},{"name":"price","type":"double"}],"connect.name":"ksql.product"}

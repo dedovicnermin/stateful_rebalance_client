@@ -1,0 +1,1 @@
+{"type":"record","name":"codes","namespace":"clickstream","fields":[{"name":"code","type":"int"},{"name":"definition","type":"string"}],"connect.name":"clickstream.codes"}

@@ -1,0 +1,1 @@
+{"type":"record","name":"users","namespace":"datagen.example","fields":[{"name":"card_id","type":"int"},{"name":"card_number","type":"long"},{"name":"cvv","type":"int"},{"name":"expiration_date","type":"string"}],"connect.name":"datagen.example.users"}

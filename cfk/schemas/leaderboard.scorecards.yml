@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: leaderboard-scorecard-schema
+data:
+  schema: |
+    {
+      "type": "record",
+      "namespace": "io.nermdev.schemas.avro.leaderboards",
+      "name": "ScoreCard",
+      "fields": [
+        {
+          "name": "player",
+          "type": "io.nermdev.schemas.avro.leaderboards.Player"
+        },
+        {
+          "name": "product",
+          "type": "io.nermdev.schemas.avro.leaderboards.Product"
+        },
+        {
+          "name": "score",
+          "type": "double"
+        },
+        {
+          "name": "latestDate",
+          "type": "string"
+        }
+      ]
+    }
+---
+
+apiVersion: platform.confluent.io/v1beta1
+kind: Schema
+metadata:
+  name: leaderboard.scorecard
+spec:
+  name: leaderboard.scorecards-value
+  data:
+    configRef: leaderboard-scorecard-schema
+    format: avro
+  compatibilityLevel: BACKWARD
+  schemaRegistryClusterRef:
+    name: sr
+  schemaReferences:
+    - format: avro
+      subject: leaderboard.players-value
+      version: 1
+      avro:
+        avro: io.nermdev.schemas.avro.leaderboards.Player
+
+    - format: avro
+      subject: leaderboard.products-value
+      version: 1
+      avro:
+        avro: io.nermdev.schemas.avro.leaderboards.Product

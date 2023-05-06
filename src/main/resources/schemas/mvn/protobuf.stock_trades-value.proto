@@ -1,0 +1,11 @@
+syntax = "proto3";
+package ksql;
+
+message StockTrade {
+  string side = 1;
+  int32 quantity = 2;
+  string symbol = 3;
+  int32 price = 4;
+  string account = 5;
+  string userid = 6;
+}

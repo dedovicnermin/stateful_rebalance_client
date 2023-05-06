@@ -1,0 +1,35 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: Connector
+metadata:
+  name: leaderboard.scores
+spec:
+  class: io.confluent.kafka.connect.datagen.DatagenConnector
+  taskMax: 2
+  connectClusterRef:
+    name: connect
+  configs:
+    producer.override.sasl.jaas.config: |
+      org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required username="${file:/mnt/secrets/mds-nermin/bearer.txt:username}" password="${file:/mnt/secrets/mds-nermin/bearer.txt:password}" metadataServerUrls="https://kafka.dev.svc.cluster.local:8090";
+    kafka.topic: "leaderboard.scores"
+    schema.string: |
+      {"type":"record","namespace":"io.nermdev.schemas.avro.leaderboards","name":"ScoreEvent","fields":[{"name":"playerId","type":{"type":"long","arg.properties":{"range":{"min":1,"max":1000}}}},{"name":"productId","type":{"type":"long","arg.properties":{"range":{"min":10000,"max":10473}}}},{"name":"score","type":{"type":"double","range":{"max":10}}},{"name":"date","type":"string"}]}
+    schema.keyfield: "playerId"
+    key.converter: "org.apache.kafka.connect.converters.LongConverter"
+    value.converter: "io.confluent.connect.avro.AvroConverter"
+    max.interval: "10"
+    iterations: "1000000"
+    schema.compatibility: "BACKWARD"
+    value.converter.schema.registry.basic.auth.credentials.source: USER_INFO
+    value.converter.schema.registry.basic.auth.user.info: nermin:nermin-secret
+    value.converter.schema.registry.ssl.truststore.location: /mnt/sslcerts/tls-nermin/truststore.p12
+    value.converter.schema.registry.ssl.truststore.password: ${file:/mnt/sslcerts/tls-connect/jksPassword.txt:jksPassword}
+    value.converter.schema.registry.ssl.truststore.type: PKCS12
+    value.converter.schema.registry.url: https://sr.dev.svc.cluster.local:8081
+  connectRest:
+    authentication:
+      type: bearer
+      bearer:
+        secretRef: mds-connect
+    tls:
+      secretRef: tls-connect
+    endpoint: https://connect.dev.svc.cluster.local:8083

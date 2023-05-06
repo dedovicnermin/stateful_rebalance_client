@@ -1,0 +1,1 @@
+{"type":"record","name":"fleet_mgmt_description","namespace":"fleet_mgmt","fields":[{"name":"vehicle_id","type":"int"},{"name":"driver_name","type":"string"},{"name":"license_plate","type":"string"}],"connect.name":"fleet_mgmt.fleet_mgmt_description"}

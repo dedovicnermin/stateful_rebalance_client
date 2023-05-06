@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stateful-rebalance-client
+  annotations:
+    prometheus.io/port: "7778"
+    prometheus.io/scrape: "true"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      application: stateful-rebalance-client
+  template:
+    metadata:
+      name: stateful-rebalance-client
+      labels:
+        application: stateful-rebalance-client
+      annotations:
+        prometheus.io/port: "7778"
+        prometheus.io/scrape: "true"
+      namespace: confluent
+    spec:
+      containers:
+        - name: client
+          image: dedovicnermin/stateful-rebalance-client:3.0
+          imagePullPolicy: Always
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+
+          args:
+            - /mnt/application/application.properties
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          volumeMounts:
+            - mountPath: /mnt/application
+              name: appconfig
+            - mountPath: /mnt/sslcerts
+              name: security
+      volumes:
+        - name: appconfig
+          configMap:
+            name: stateful-rebalance-client-config
+        - name: security
+          secret:
+            secretName: tls-client
+
+
