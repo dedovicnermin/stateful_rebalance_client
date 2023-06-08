@@ -23,5 +23,22 @@ data:
     schema.registry.basic.auth.credentials.source=USER_INFO
     compression.type=lz4
     schema.registry.basic.auth.user.info=nermin:nermin-secret
-  
+    confluent.monitoring.interceptor.bootstrap.servers=kafka:9071
+    confluent.monitoring.interceptor.security.protocol=SSL
+    confluent.monitoring.interceptor.ssl.keystore.location=/mnt/sslcerts/keystore.jks
+    confluent.monitoring.interceptor.ssl.keystore.password=mystorepassword
+    confluent.monitoring.interceptor.ssl.key.password=mystorepassword
+    confluent.monitoring.interceptor.ssl.truststore.location=/mnt/sslcerts/truststore.jks
+    confluent.monitoring.interceptor.ssl.truststore.password=mystorepassword
+    confluent.monitoring.interceptor.client.id=leaderboard_monitoring_interceptor
+    
+#    timestamps.producer.bootstrap.servers=kafka:9071
+#    timestamps.producer.security.protocol=SSL
+#    timestamps.producer.ssl.keystore.location=/mnt/sslcerts/keystore.jks
+#    timestamps.producer.ssl.keystore.password=mystorepassword
+#    timestamps.producer.ssl.key.password=mystorepassword
+#    timestamps.producer.ssl.truststore.location=/mnt/sslcerts/truststore.jks
+#    timestamps.producer.ssl.truststore.password=mystorepassword
+#    timestamps.producer.client.id=leaderboard_timestamps_producer
+
     

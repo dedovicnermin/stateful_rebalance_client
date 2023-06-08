@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: dedovicnermin/stateful-rebalance-client:3.0
+          image: dedovicnermin/stateful-rebalance-client:3.1
           imagePullPolicy: Always
           env:
             - name: POD_NAME

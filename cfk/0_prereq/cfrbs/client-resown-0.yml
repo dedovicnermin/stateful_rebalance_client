@@ -1,0 +1,23 @@
+kind: ConfluentRolebinding
+apiVersion: platform.confluent.io/v1beta1
+metadata:
+  name: leaderboard-client-resown-0
+  labels:
+    principal: client
+    role: resourceowner
+    cscope: kafka
+spec:
+  principal:
+    name: client
+    type: user
+  resourcePatterns:
+    - name: leaderboard
+      resourceType: Topic
+      patternType: PREFIXED
+    - name: leaderboard
+      resourceType: Group
+      patternType: PREFIXED
+    - name: __consumer_timestamps
+      resourceType: Topic
+      patternType: LITERAL
+  role: ResourceOwner

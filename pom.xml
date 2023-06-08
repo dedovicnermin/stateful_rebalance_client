@@ -13,7 +13,8 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>2.20.0</slf4j.version>
-        <kafka.clients.version>3.2.3</kafka.clients.version>
+        <kafka.version>7.3.3</kafka.version>
+        <avro.version>1.11.0</avro.version>
     </properties>
 
     <packaging>jar</packaging>
@@ -135,12 +136,41 @@
             <version>4.4</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/io.confluent/timestamp-interceptor -->
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>timestamp-interceptor</artifactId>
+            <version>${kafka.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.confluent.observability</groupId>
+                    <artifactId>telemetry-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.confluent.observability</groupId>
+                    <artifactId>telemetry-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
+        <!-- https://mvnrepository.com/artifact/io.confluent/monitoring-interceptors -->
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>monitoring-interceptors</artifactId>
+            <version>${kafka.version}</version>
+        </dependency>
+
+
+
+
+
+        <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>${kafka.clients.version}</version>
+            <version>${kafka.version}-ce</version>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -150,12 +180,12 @@
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
-            <version>1.11.0</version>
+            <version>${avro.version}</version>
         </dependency>
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-avro-serializer</artifactId>
-            <version>7.3.1</version>
+            <version>${kafka.version}</version>
         </dependency>
     </dependencies>
 </project>

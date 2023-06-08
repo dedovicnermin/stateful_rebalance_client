@@ -1,6 +1,9 @@
 kind: Kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 
+namespace: dev
+
 resources:
   - client-resown-0.yml
+  - client-devwrite-0.yml
 
