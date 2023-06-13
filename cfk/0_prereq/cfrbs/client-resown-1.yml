@@ -1,0 +1,21 @@
+# for monitoring interceptor
+---
+kind: ConfluentRolebinding
+apiVersion: platform.confluent.io/v1beta1
+metadata:
+  name: leaderboard-client-resown-1
+  labels:
+    principal: client
+    role: resourceowner
+    cscope: sr
+spec:
+  principal:
+    name: client
+    type: user
+  resourcePatterns:
+    - name: leaderboard
+      resourceType: Subject
+      patternType: PREFIXED
+  role: ResourceOwner
+  clustersScopeByIds:
+    schemaRegistryClusterId: id_sr_dev

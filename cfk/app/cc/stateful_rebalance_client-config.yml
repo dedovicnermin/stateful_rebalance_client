@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stateful-rebalance-client-config-cc
+data:
+  application.properties: |-
+    bootstrap.servers=pkc-n98pk.us-west-2.aws.confluent.cloud:9092
+    key.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+    group.id=leaderboard.k8.cg
+    auto.offset.reset=earliest
+    enable.auto.commit=false
+    max.poll.records=1000
+    partition.assignment.strategy=org.apache.kafka.clients.consumer.RangeAssignor
+    security.protocol=SASL_SSL
+    sasl.mechanism=PLAIN
+    sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="ZAKE35POAFYPQMWP" password="IIMxTtLGA9/b+pYlOQ6YOCs0BYwdjO1Hifj0Miu9QTsL0faT1XeRJTFO4IRQsR+l";
+    
+    schema.registry.url=https://psrc-vrpp5.us-east-2.aws.confluent.cloud
+    schema.registry.basic.auth.credentials.source=USER_INFO
+    compression.type=lz4
+    schema.registry.basic.auth.user.info=RJAYUR5UOB6I3RJF:Up0EvcF0PstaYSGgoC2mZChHdPh1Lv+YAlf43LSBkle5G7fJ/gvDSRM8JdQE496H
+    confluent.monitoring.interceptor.bootstrap.servers=pkc-n98pk.us-west-2.aws.confluent.cloud:9092
+    confluent.monitoring.interceptor.security.protocol=SASL_SSL
+    confluent.monitoring.interceptor.sasl.mechanism=PLAIN
+    confluent.monitoring.interceptor.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="ZAKE35POAFYPQMWP" password="IIMxTtLGA9/b+pYlOQ6YOCs0BYwdjO1Hifj0Miu9QTsL0faT1XeRJTFO4IRQsR+l";
+    confluent.monitoring.interceptor.client.id=leaderboard_monitoring_interceptor_cc
+    
+    # for DR / migration
+#    timestamps.producer.bootstrap.servers=https://psrc-vrpp5.us-east-2.aws.confluent.cloud
+#    timestamps.producer.security.protocol=SASL_SSL
+#    timestamps.producer.sasl.mechanism=PLAIN
+#    timestamps.producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="ZAKE35POAFYPQMWP" password="IIMxTtLGA9/b+pYlOQ6YOCs0BYwdjO1Hifj0Miu9QTsL0faT1XeRJTFO4IRQsR+l";
+#    timestamps.producer.client.id=leaderboard_timestamps_producer_cc

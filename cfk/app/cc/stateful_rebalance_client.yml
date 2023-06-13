@@ -18,7 +18,7 @@ spec:
       annotations:
         prometheus.io/port: "7778"
         prometheus.io/scrape: "true"
-      namespace: dev
+
     spec:
       containers:
         - name: client
@@ -48,7 +48,7 @@ spec:
       volumes:
         - name: appconfig
           configMap:
-            name: stateful-rebalance-client-config
+            name: stateful-rebalance-client-config-cc
         - name: security
           secret:
             secretName: tls-client

@@ -4,7 +4,7 @@ metadata:
   name: stateful-rebalance-client-config
 data:
   application.properties: |-
-    bootstrap.servers=kafka.dev.svc.cluster.local:9071
+    bootstrap.servers=kafka:9071
     key.deserializer=org.apache.kafka.common.serialization.LongDeserializer
     group.id=leaderboard.k8.cg
     auto.offset.reset=earliest
@@ -17,7 +17,7 @@ data:
     ssl.key.password=mystorepassword
     ssl.truststore.location=/mnt/sslcerts/truststore.jks
     ssl.truststore.password=mystorepassword
-    schema.registry.url=https://sr.dev.svc.cluster.local:8081
+    schema.registry.url=https://sr:8081
     schema.registry.ssl.truststore.location=/mnt/sslcerts/truststore.jks
     schema.registry.ssl.truststore.password=mystorepassword
     schema.registry.basic.auth.credentials.source=USER_INFO
@@ -32,13 +32,12 @@ data:
     confluent.monitoring.interceptor.ssl.truststore.password=mystorepassword
     confluent.monitoring.interceptor.client.id=leaderboard_monitoring_interceptor
     
-#    timestamps.producer.bootstrap.servers=kafka:9071
-#    timestamps.producer.security.protocol=SSL
-#    timestamps.producer.ssl.keystore.location=/mnt/sslcerts/keystore.jks
-#    timestamps.producer.ssl.keystore.password=mystorepassword
-#    timestamps.producer.ssl.key.password=mystorepassword
-#    timestamps.producer.ssl.truststore.location=/mnt/sslcerts/truststore.jks
-#    timestamps.producer.ssl.truststore.password=mystorepassword
-#    timestamps.producer.client.id=leaderboard_timestamps_producer
-
-    
+    # for DR / migration
+    timestamps.producer.bootstrap.servers=kafka:9071
+    timestamps.producer.security.protocol=SSL
+    timestamps.producer.ssl.keystore.location=/mnt/sslcerts/keystore.jks
+    timestamps.producer.ssl.keystore.password=mystorepassword
+    timestamps.producer.ssl.key.password=mystorepassword
+    timestamps.producer.ssl.truststore.location=/mnt/sslcerts/truststore.jks
+    timestamps.producer.ssl.truststore.password=mystorepassword
+    timestamps.producer.client.id=leaderboard_timestamps_producer

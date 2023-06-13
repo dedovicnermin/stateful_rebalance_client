@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stateful-rebalance-client-config-sasl
+data:
+  application.properties: |-
+    bootstrap.servers=kafka.dev.svc.cluster.local:9092
+    key.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+    group.id=leaderboard.saslssl.k8.cg
+    auto.offset.reset=earliest
+    enable.auto.commit=false
+    max.poll.records=1000
+    partition.assignment.strategy=org.apache.kafka.clients.consumer.RangeAssignor
+    security.protocol=SASL_SSL
+    sasl.mechanism=PLAIN
+    sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="client" password="client-secret";
+    ssl.truststore.location=/mnt/sslcerts/truststore.jks
+    ssl.truststore.password=mystorepassword
+    schema.registry.url=https://sr:8081
+    schema.registry.ssl.truststore.location=/mnt/sslcerts/truststore.jks
+    schema.registry.ssl.truststore.password=mystorepassword
+    schema.registry.basic.auth.credentials.source=USER_INFO
+    compression.type=lz4
+    schema.registry.basic.auth.user.info=client:client-secret
+    confluent.monitoring.interceptor.bootstrap.servers=kafka.dev.svc.cluster.local:9092
+    confluent.monitoring.interceptor.security.protocol=SASL_SSL
+    confluent.monitoring.interceptor.sasl.mechanism=PLAIN
+    confluent.monitoring.interceptor.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="client" password="client-secret";
+    confluent.monitoring.interceptor.ssl.truststore.location=/mnt/sslcerts/truststore.jks
+    confluent.monitoring.interceptor.ssl.truststore.password=mystorepassword
+    confluent.monitoring.interceptor.client.id=leaderboard_monitoring_interceptor-sasl
+    
+    # for DR / migration
+    timestamps.producer.bootstrap.servers=kafka.dev.svc.cluster.local:9092
+    timestamps.producer.security.protocol=SASL_SSL
+    timestamps.producer.sasl.mechanism=PLAIN
+    timestamps.producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="client" password="client-secret";
+    timestamps.producer.ssl.truststore.location=/mnt/sslcerts/truststore.jks
+    timestamps.producer.ssl.truststore.password=mystorepassword
+    timestamps.producer.client.id=leaderboard_timestamps_producer-sasl

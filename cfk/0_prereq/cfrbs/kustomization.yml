@@ -5,5 +5,5 @@ namespace: dev
 
 resources:
   - client-resown-0.yml
-  - client-devwrite-0.yml
+  - client-resown-1.yml
 

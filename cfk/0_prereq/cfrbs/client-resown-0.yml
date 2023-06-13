@@ -20,4 +20,7 @@ spec:
     - name: __consumer_timestamps
       resourceType: Topic
       patternType: LITERAL
+    - name: _confluent-monitoring
+      resourceType: Topic
+      patternType: LITERAL
   role: ResourceOwner
