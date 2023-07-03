@@ -120,6 +120,8 @@ data:
     producers.scorecard.schema.registry.basic.auth.user.info=nermin:nermin-secret
     producers.scorecard.enable.idempotence=true
     producers.scorecard.compression.type=lz4
+    producers.scorecard.linger.ms=100
+    producers.scorecard.batch.size=100000
     producers.scorecard.interceptor.classes=io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
     producers.scorecard.confluent.monitoring.interceptor.bootstrap.servers=kafka:9071
     producers.scorecard.confluent.monitoring.interceptor.security.protocol=SSL

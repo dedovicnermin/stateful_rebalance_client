@@ -6,7 +6,7 @@ metadata:
     prometheus.io/port: "7778"
     prometheus.io/scrape: "true"
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       application: stateful-rebalance-client

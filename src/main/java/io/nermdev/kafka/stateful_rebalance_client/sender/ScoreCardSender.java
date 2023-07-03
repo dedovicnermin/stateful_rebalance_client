@@ -26,8 +26,6 @@ public class ScoreCardSender implements EventSender<Long, ScoreCard> {
         map.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         map.put(ProducerConfig.ACKS_CONFIG, "all");
         map.putAll(producerConfig);
-        map.remove("interceptor.classes");
-        map.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, Collections.singletonList(MonitoringProducerInterceptor.class));
         map.put(KafkaAvroSerializerConfig.AVRO_REFLECTION_ALLOW_NULL_CONFIG, true);
         producer = new KafkaProducer<>(map, new LongSerializer(), new ScoreCardSerializer(map));
     }

@@ -4,7 +4,7 @@ metadata:
   name: leaderboard.scores
 spec:
   class: io.confluent.kafka.connect.datagen.DatagenConnector
-  taskMax: 2
+  taskMax: 1
   connectClusterRef:
     name: connect
   configs:
@@ -16,8 +16,8 @@ spec:
     schema.keyfield: "playerId"
     key.converter: "org.apache.kafka.connect.converters.LongConverter"
     value.converter: "io.confluent.connect.avro.AvroConverter"
-    max.interval: "20000"
-    iterations: "250000"
+    max.interval: "5000"
+    iterations: "2500000"
     schema.compatibility: "BACKWARD"
     value.converter.schema.registry.basic.auth.credentials.source: USER_INFO
     value.converter.schema.registry.basic.auth.user.info: nermin:nermin-secret

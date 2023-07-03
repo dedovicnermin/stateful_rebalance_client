@@ -4,30 +4,59 @@ metadata:
   name: stateful-rebalance-client-config-cc
 data:
   application.properties: |-
-    bootstrap.servers=pkc-n98pk.us-west-2.aws.confluent.cloud:9092
-    key.deserializer=org.apache.kafka.common.serialization.LongDeserializer
-    group.id=leaderboard.k8.cg
-    auto.offset.reset=earliest
-    enable.auto.commit=false
-    max.poll.records=1000
-    partition.assignment.strategy=org.apache.kafka.clients.consumer.RangeAssignor
-    security.protocol=SASL_SSL
-    sasl.mechanism=PLAIN
-    sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="ZAKE35POAFYPQMWP" password="IIMxTtLGA9/b+pYlOQ6YOCs0BYwdjO1Hifj0Miu9QTsL0faT1XeRJTFO4IRQsR+l";
+    consumers.score.client.id=src-ccloud-scores.consumer
+    consumers.score.group.id=leaderboard.k8.cg.001
+    consumers.score.bootstrap.servers=pkc-qvo1m.us-west-2.aws.confluent.cloud:9092
+    consumers.score.key.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+    consumers.score.auto.offset.reset=earliest
+    consumers.score.enable.auto.commit=false
+    consumers.score.security.protocol=SASL_SSL
+    consumers.score.sasl.mechanism=PLAIN
+    consumers.score.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule REQUIRED \
+      username="NGDARGEXO2Q6FF3I" \
+      password="JcvrZa63/uTYhUFouCzeCVp8fOgPlxP5B/9JAcVMeMTLhn+BvuWinWJslJe0jwXB";
+    consumers.score.schema.registry.url=https://psrc-vn38j.us-east-2.aws.confluent.cloud
+    consumers.score.schema.registry.basic.auth.credentials.source=USER_INFO
+    consumers.score.schema.registry.basic.auth.user.info=RHV23E5ZNOM6FUVF:mvNvmZhLJYufL18I7JPK0TKqKq2yTwL306Uv7IRwxxLOLO/klI5oCovSsPr9ZAow
+
+    consumers.player.client.id=src-ccloud-players.consumer
+    consumers.player.group.id=leaderboard.k8.cg
+    consumers.player.bootstrap.servers=pkc-qvo1m.us-west-2.aws.confluent.cloud:9092
+    consumers.player.key.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+    consumers.player.auto.offset.reset=earliest
+    consumers.player.enable.auto.commit=false
+    consumers.player.security.protocol=SASL_SSL
+    consumers.player.sasl.mechanism=PLAIN
+    consumers.player.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule REQUIRED \
+      username="NGDARGEXO2Q6FF3I" \
+      password="JcvrZa63/uTYhUFouCzeCVp8fOgPlxP5B/9JAcVMeMTLhn+BvuWinWJslJe0jwXB";
+    consumers.player.schema.registry.url=https://psrc-vn38j.us-east-2.aws.confluent.cloud
+    consumers.player.schema.registry.basic.auth.credentials.source=USER_INFO
+    consumers.player.schema.registry.basic.auth.user.info=RHV23E5ZNOM6FUVF:mvNvmZhLJYufL18I7JPK0TKqKq2yTwL306Uv7IRwxxLOLO/klI5oCovSsPr9ZAow
     
-    schema.registry.url=https://psrc-vrpp5.us-east-2.aws.confluent.cloud
-    schema.registry.basic.auth.credentials.source=USER_INFO
-    compression.type=lz4
-    schema.registry.basic.auth.user.info=RJAYUR5UOB6I3RJF:Up0EvcF0PstaYSGgoC2mZChHdPh1Lv+YAlf43LSBkle5G7fJ/gvDSRM8JdQE496H
-    confluent.monitoring.interceptor.bootstrap.servers=pkc-n98pk.us-west-2.aws.confluent.cloud:9092
-    confluent.monitoring.interceptor.security.protocol=SASL_SSL
-    confluent.monitoring.interceptor.sasl.mechanism=PLAIN
-    confluent.monitoring.interceptor.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="ZAKE35POAFYPQMWP" password="IIMxTtLGA9/b+pYlOQ6YOCs0BYwdjO1Hifj0Miu9QTsL0faT1XeRJTFO4IRQsR+l";
-    confluent.monitoring.interceptor.client.id=leaderboard_monitoring_interceptor_cc
+    consumers.product.client.id=src-ccloud-product.consumer
+    consumers.product.bootstrap.servers=pkc-qvo1m.us-west-2.aws.confluent.cloud:9092
+    consumers.product.key.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+    consumers.product.auto.offset.reset=earliest
+    consumers.product.enable.auto.commit=false
+    consumers.product.security.protocol=SASL_SSL
+    consumers.product.sasl.mechanism=PLAIN
+    consumers.product.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule REQUIRED \
+      username="NGDARGEXO2Q6FF3I" \
+      password="JcvrZa63/uTYhUFouCzeCVp8fOgPlxP5B/9JAcVMeMTLhn+BvuWinWJslJe0jwXB";
+    consumers.product.schema.registry.url=https://psrc-vn38j.us-east-2.aws.confluent.cloud
+    consumers.product.schema.registry.basic.auth.credentials.source=USER_INFO
+    consumers.product.schema.registry.basic.auth.user.info=RHV23E5ZNOM6FUVF:mvNvmZhLJYufL18I7JPK0TKqKq2yTwL306Uv7IRwxxLOLO/klI5oCovSsPr9ZAow
     
-    # for DR / migration
-#    timestamps.producer.bootstrap.servers=https://psrc-vrpp5.us-east-2.aws.confluent.cloud
-#    timestamps.producer.security.protocol=SASL_SSL
-#    timestamps.producer.sasl.mechanism=PLAIN
-#    timestamps.producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="ZAKE35POAFYPQMWP" password="IIMxTtLGA9/b+pYlOQ6YOCs0BYwdjO1Hifj0Miu9QTsL0faT1XeRJTFO4IRQsR+l";
-#    timestamps.producer.client.id=leaderboard_timestamps_producer_cc
+    producers.scorecard.client.id=src-ccloud-scorecard.producer
+    producers.scorecard.bootstrap.servers=pkc-qvo1m.us-west-2.aws.confluent.cloud:9092
+    producers.scorecard.key.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+    producers.scorecard.security.protocol=SASL_SSL
+    producers.scorecard.sasl.mechanism=PLAIN
+    producers.scorecard.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule REQUIRED \
+      username="NGDARGEXO2Q6FF3I" \
+      password="JcvrZa63/uTYhUFouCzeCVp8fOgPlxP5B/9JAcVMeMTLhn+BvuWinWJslJe0jwXB";
+    producers.scorecard.schema.registry.url=https://psrc-vn38j.us-east-2.aws.confluent.cloud
+    producers.scorecard.schema.registry.basic.auth.credentials.source=USER_INFO
+    producers.scorecard.schema.registry.basic.auth.user.info=RHV23E5ZNOM6FUVF:mvNvmZhLJYufL18I7JPK0TKqKq2yTwL306Uv7IRwxxLOLO/klI5oCovSsPr9ZAow
+    
