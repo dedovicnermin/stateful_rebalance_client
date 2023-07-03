@@ -33,7 +33,6 @@ public class PlayerStatefulReceiver extends BaseStatefulReceiver<Long, Player> {
 
     public PlayerStatefulReceiver(final Map<String, Object> properties) {
         super(properties);
-        LeaderboardUtils.configureForK8(consumerConfig, "player");
         this.stateListener = new PlayerStateListener(this);
     }
 
@@ -46,7 +45,7 @@ public class PlayerStatefulReceiver extends BaseStatefulReceiver<Long, Player> {
     public void run() {
         final LongDeserializer longDeserializer = new LongDeserializer();
         final AvroPayloadDeserializer<Player> avroPayloadDeserializer = new AvroPayloadDeserializer<>(consumerConfig);
-        consumerConfig.put("client.id", "consumer-player" + System.getenv("POD_NAME"));
+        consumerConfig.put("client.id", consumerConfig.get("client.id") + "-" + System.getenv("POD_NAME"));
         consumer = new KafkaConsumer<>(consumerConfig, longDeserializer, avroPayloadDeserializer);
         final StatefulRebalanceListener<Long, Player> rebalanceListener = new StatefulRebalanceListener<>(consumer, consumerConfig, longDeserializer, stateListener);
         consumer.subscribe(Collections.singleton(topic), rebalanceListener);
@@ -83,15 +82,13 @@ public class PlayerStatefulReceiver extends BaseStatefulReceiver<Long, Player> {
 
 
     @Override
-    protected String getGroupName(Map<String, Object> config) {
-//        return config.get("group.id") + ".player";
-        return (String) config.get("group.id");
-
+    protected String getTopicName(Map<String, Object> config) {
+        return (String) config.getOrDefault("players.topic", "leaderboard.players");
     }
 
     @Override
-    protected String getTopicName(Map<String, Object> config) {
-        return (String) config.getOrDefault("players.topic", "leaderboard.players");
+    protected String getConfigKey() {
+        return "player";
     }
 
     @Override

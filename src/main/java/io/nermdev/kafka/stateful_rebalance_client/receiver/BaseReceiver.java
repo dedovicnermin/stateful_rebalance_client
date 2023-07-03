@@ -1,14 +1,13 @@
 package io.nermdev.kafka.stateful_rebalance_client.receiver;
 
-import io.confluent.connect.replicator.offsets.ConsumerTimestampsInterceptor;
-import io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor;
 import io.nermdev.kafka.stateful_rebalance_client.model.PayloadOrError;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
+
+import io.nermdev.kafka.stateful_rebalance_client.util.AppClientType;
+import io.nermdev.kafka.stateful_rebalance_client.util.ConfigExtractor;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -21,14 +20,12 @@ public abstract class BaseReceiver<K, V> extends AbstractReceiver<K, V> {
 
     protected BaseReceiver(final Map<String, Object> consumerConfig) {
         countDownLatch = new CountDownLatch(1);
-        consumerConfig.put("group.id", getGroupName(consumerConfig));
-        consumerConfig.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, Arrays.asList(ConsumerTimestampsInterceptor.class, MonitoringConsumerInterceptor.class));
         topic = getTopicName(consumerConfig);
-        this.consumerConfig = consumerConfig;
+        this.consumerConfig = ConfigExtractor.extractConfig(consumerConfig, AppClientType.CONSUMER, getConfigKey());
     }
-
-    protected abstract String getGroupName(final Map<String, Object> config);
     protected abstract String getTopicName(final Map<String, Object> config);
+
+    protected abstract String getConfigKey();
     protected abstract KafkaConsumer<K, PayloadOrError<V>> getConsumer();
 
 
@@ -46,7 +43,7 @@ public abstract class BaseReceiver<K, V> extends AbstractReceiver<K, V> {
         } catch (InterruptedException e) {
             e.printStackTrace();
             log.error("Interrupted exception catch block (EXCEPTION) : {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new RuntimeException("Interrupt occurred during receiver shutdown \n",e);
         }
         log.info("Receiver and consumer closed");
     }

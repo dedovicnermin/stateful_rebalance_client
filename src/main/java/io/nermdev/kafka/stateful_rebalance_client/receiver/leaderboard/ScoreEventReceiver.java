@@ -37,13 +37,13 @@ public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
     }
 
     @Override
-    protected String getGroupName(Map<String, Object> config) {
-        return (String) config.get("group.id");
+    protected String getTopicName(Map<String, Object> config) {
+        return "leaderboard.scores";
     }
 
     @Override
-    protected String getTopicName(Map<String, Object> config) {
-        return "leaderboard.scores";
+    protected String getConfigKey() {
+        return "score";
     }
 
     @Override
