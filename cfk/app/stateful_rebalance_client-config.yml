@@ -5,7 +5,7 @@ metadata:
 data:
   application.properties: |-
     consumers.score.client.id=src-scores.consumer
-    consumers.score.group.id=leaderboard.k8.cg.001
+    consumers.score.group.id=leaderboard.k8.cg
     consumers.score.bootstrap.servers=kafka:9071
     consumers.score.key.deserializer=org.apache.kafka.common.serialization.LongDeserializer
     consumers.score.auto.offset.reset=earliest
@@ -41,7 +41,7 @@ data:
 
 
     consumers.player.client.id=src-players.consumer
-    consumers.player.group.id=leaderboard.k8.cg.001
+    consumers.player.group.id=leaderboard.k8.cg
     consumers.player.bootstrap.servers=kafka:9071
     consumers.player.key.deserializer=org.apache.kafka.common.serialization.LongDeserializer
     consumers.player.auto.offset.reset=earliest
