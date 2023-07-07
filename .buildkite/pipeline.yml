@@ -1,15 +1,23 @@
 steps:
   - label: ":one-does-not-simply::k8s: Build prereq resources  :hammer::wrench:"
-  commands:
-    - kustomize build cfk/0_prereq > /dev/null
-  plugins:
+    commands:
+      - kustomize build cfk/0_prereq > /dev/null
+    plugins:
+      - docker#v5.8.0:
+          image: dedovicnermin/pscfk-buildkite:0.0.4
+
+
+  - label: ":kafka::k8s: Build deployment / datagen connector :punch::superfly:"
+    commands:
+      - kustomize build cfk > /dev/null
+    plugins:
     - docker#v5.8.0:
         image: dedovicnermin/pscfk-buildkite:0.0.4
 
-
-- label: ":kafka::k8s: Build deployment / datagen connector :punch::superfly:"
-  commands:
-    - kustomize build cfk > /dev/null
-  plugins:
-    - docker#v5.8.0:
-        image: dedovicnermin/pscfk-buildkite:0.0.4
+  - label: ":java::maven: mvn clean install :one-does-not-simply:"
+    commands:
+      - mvn clean install
+    plugins:
+      - docker#v5.8.0:
+          image: dedovicnermin/pscfk-buildkite:0.0.4
+        
