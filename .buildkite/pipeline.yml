@@ -1,10 +1,4 @@
 steps:
-  - label: ":java::maven: mvn clean install"
-    commands:
-      - mvn clean install
-    plugins:
-      - docker#v5.8.0:
-          image: dedovicnermin/pscfk-buildkite:0.0.5
 
   - label: ":one-does-not-simply::k8s: Build prereq resources  :hammer::wrench:"
     commands:
