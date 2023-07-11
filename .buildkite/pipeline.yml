@@ -5,7 +5,7 @@ steps:
     plugins:
       - docker#v5.8.0:
           image: dedovicnermin/pscfk-buildkite:0.0.5
-          
+
   - label: ":one-does-not-simply::k8s: Build prereq resources  :hammer::wrench:"
     commands:
       - kustomize build cfk/0_prereq > /dev/null
@@ -24,6 +24,7 @@ steps:
   - label: ":java::maven: mvn clean install :one-does-not-simply:"
     commands:
       - mvn clean install
+      - mvn clean
     plugins:
       - docker#v5.8.0:
           image: dedovicnermin/pscfk-buildkite:0.0.5
