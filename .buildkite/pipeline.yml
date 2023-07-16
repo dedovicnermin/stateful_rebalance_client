@@ -5,7 +5,8 @@ steps:
       - kustomize build cfk/0_prereq > /dev/null
     plugins:
       - docker#v5.8.0:
-          image: dedovicnermin/pscfk-buildkite:0.0.5
+          image: dedovicnermin/pscfk-buildkite:0.0.6
+          propagate-uid-gid: true
 
 
   - label: ":kafka::k8s: Build deployment / datagen connector :punch::superfly:"
@@ -13,7 +14,8 @@ steps:
       - kustomize build cfk > /dev/null
     plugins:
     - docker#v5.8.0:
-        image: dedovicnermin/pscfk-buildkite:0.0.5
+        image: dedovicnermin/pscfk-buildkite:0.0.6
+        propagate-uid-gid: true
 
   - label: ":java::maven: mvn clean install :one-does-not-simply:"
     commands:
@@ -21,5 +23,6 @@ steps:
       - mvn clean
     plugins:
       - docker#v5.8.0:
-          image: dedovicnermin/pscfk-buildkite:0.0.5
+          image: dedovicnermin/pscfk-buildkite:0.0.6
+          propagate-uid-gid: true
         
