@@ -2,13 +2,16 @@ package io.nermdev.kafka.stateful_rebalance_client.sender;
 
 
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
-import io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor;
 import io.nermdev.kafka.stateful_rebalance_client.serializer.ScoreCardSerializer;
 import io.nermdev.schemas.avro.leaderboards.ScoreCard;
-import org.apache.kafka.clients.producer.*;
+
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.LongSerializer;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

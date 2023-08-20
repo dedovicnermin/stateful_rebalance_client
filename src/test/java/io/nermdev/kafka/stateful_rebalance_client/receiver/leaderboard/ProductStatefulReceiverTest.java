@@ -11,8 +11,11 @@ class ProductStatefulReceiverTest extends AbstractContainerBaseTest {
 
 
     @Test
-    void test() {
+    void test() throws InterruptedException {
 
         System.out.println(getKafkaContainer().getBootstrapServers());
+        System.out.printf(getSrContainer().getBaseUrl());
+        System.out.printf("sleeping...");
+        Thread.sleep(10000);
     }
 }

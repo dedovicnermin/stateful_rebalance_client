@@ -25,5 +25,5 @@ public interface EventSender<K,V> extends Closeable {
     }
 
     @Override
-    public void close();
+    void close();
 }
