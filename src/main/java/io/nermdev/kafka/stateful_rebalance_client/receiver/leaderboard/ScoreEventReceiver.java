@@ -6,6 +6,7 @@ import io.nermdev.kafka.stateful_rebalance_client.rebalance.SleepyRebalanceListe
 import io.nermdev.kafka.stateful_rebalance_client.receiver.BaseReceiver;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.ReceiveEvent;
 import io.nermdev.kafka.stateful_rebalance_client.serializer.AvroPayloadDeserializer;
+import io.nermdev.kafka.stateful_rebalance_client.util.AppClientType;
 import io.nermdev.kafka.stateful_rebalance_client.util.LeaderboardUtils;
 import io.nermdev.schemas.avro.leaderboards.ScoreEvent;
 import lombok.SneakyThrows;
@@ -27,28 +28,45 @@ import java.util.stream.Collectors;
 
 public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
     private static final Logger log = LoggerFactory.getLogger(ScoreEventReceiver.class);
-    private KafkaConsumer<Long, PayloadOrError<ScoreEvent>> consumer;
-    private final PlayerStatefulReceiver playerReceiver;
 
-    public ScoreEventReceiver(final Map<String, Object> consumerConfig, final PlayerStatefulReceiver playerReceiver) {
-        super(consumerConfig);
+
+    private final  KafkaConsumer<Long, PayloadOrError<ScoreEvent>> consumer;
+    private final PlayerStatefulReceiver playerReceiver;
+    private final Duration duration;
+
+    public ScoreEventReceiver(final Map<String, Object> config, final PlayerStatefulReceiver playerReceiver, final KafkaConsumer<Long, PayloadOrError<ScoreEvent>> consumer) {
+        this(config, playerReceiver, consumer, Duration.ofMillis(500));
+    }
+
+
+    public ScoreEventReceiver(
+            final Map<String, Object> config,
+            final PlayerStatefulReceiver playerReceiver,
+            final KafkaConsumer<Long, PayloadOrError<ScoreEvent>> consumer,
+            final Duration duration
+    ) {
+        super(config);
+//        this.avroDeserializer = new AvroPayloadDeserializer<>(consumerConfig);
+        this.consumer = consumer;
         this.playerReceiver = playerReceiver;
+        this.duration = duration;
         LeaderboardUtils.configureForK8(consumerConfig, "score");
     }
 
     @Override
-    protected String getTopicName(Map<String, Object> config) {
+    protected String getTopicName() {
         return "leaderboard.scores";
     }
 
-    @Override
-    protected String getConfigKey() {
-        return "score";
-    }
 
     @Override
     protected KafkaConsumer<Long, PayloadOrError<ScoreEvent>> getConsumer() {
         return consumer;
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return log;
     }
 
 
@@ -75,10 +93,8 @@ public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
     @SneakyThrows
     @Override
     public void run() {
-        final LongDeserializer longDeserializer = new LongDeserializer();
-        final AvroPayloadDeserializer<ScoreEvent> avroPayloadDeserializer = new AvroPayloadDeserializer<>(consumerConfig);
         consumerConfig.put("client.id", "consumer-scores" + System.getenv("POD_NAME"));
-        consumer = new KafkaConsumer<>(consumerConfig, longDeserializer, avroPayloadDeserializer);
+//        consumer = new KafkaConsumer<>(consumerConfig, longDeserializer, avroPayloadDeserializer);
         consumer.subscribe(Collections.singleton(topic), new SleepyRebalanceListener());
         final Duration pto = Duration.ofMillis(500);
 
@@ -107,7 +123,7 @@ public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
                 countDownLatch.countDown();
                 log.info("The scoreevent consuemr is now gracefully closed");
             }
-            avroPayloadDeserializer.close();
+//            avroPayloadDeserializer.close();
 
         }
     }

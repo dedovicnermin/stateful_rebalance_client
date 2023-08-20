@@ -1,6 +1,7 @@
 package io.nermdev.kafka.stateful_rebalance_client.listener.state;
 
 import io.nermdev.kafka.stateful_rebalance_client.listener.EventListener;
+import io.nermdev.kafka.stateful_rebalance_client.model.PayloadOrError;
 import lombok.SneakyThrows;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;

@@ -1,7 +1,9 @@
 package io.nermdev.kafka.stateful_rebalance_client.util;
 
 import io.nermdev.kafka.stateful_rebalance_client.Application;
+import io.nermdev.kafka.stateful_rebalance_client.receiver.BaseReceiver;
 import org.assertj.core.api.Assertions;
+import org.junit.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 

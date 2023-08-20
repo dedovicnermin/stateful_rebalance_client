@@ -2,31 +2,46 @@ package io.nermdev.kafka.stateful_rebalance_client.receiver;
 
 import io.nermdev.kafka.stateful_rebalance_client.model.PayloadOrError;
 
-import io.nermdev.kafka.stateful_rebalance_client.util.AppClientType;
-import io.nermdev.kafka.stateful_rebalance_client.util.ConfigExtractor;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+
+import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 
-public abstract class BaseReceiver<K, V> extends AbstractReceiver<K, V> {
-    private final Logger log = LoggerFactory.getLogger(BaseReceiver.class);
-    protected final String topic;
-    protected final CountDownLatch countDownLatch;
+public abstract class BaseReceiver<K, V> extends AbstractReceiver<K, V>  {
     protected final Map<String, Object> consumerConfig;
+    protected final CountDownLatch countDownLatch;
+    protected final Duration pollDuration;
+    protected final String topic;
 
     protected BaseReceiver(final Map<String, Object> consumerConfig) {
-        countDownLatch = new CountDownLatch(1);
-        topic = getTopicName(consumerConfig);
-        this.consumerConfig = ConfigExtractor.extractConfig(consumerConfig, AppClientType.CONSUMER, getConfigKey());
-    }
-    protected abstract String getTopicName(final Map<String, Object> config);
+        this.countDownLatch = new CountDownLatch(1);
+        this.consumerConfig = consumerConfig;
+        this.pollDuration = getPollDuration();
+        topic = setTopic();
 
-    protected abstract String getConfigKey();
+    }
+
+    private String setTopic() {
+        return (String) consumerConfig.getOrDefault("topic", getTopicName());
+    }
+
+    private Duration getPollDuration() {
+        return Optional.ofNullable((String)consumerConfig.get("poll.duration"))
+                .map(Long::parseLong)
+                .map(Duration::ofMillis)
+                .orElse(Duration.ofMillis(500));
+    }
+
+    protected abstract String getTopicName();
+
     protected abstract KafkaConsumer<K, PayloadOrError<V>> getConsumer();
+
+    protected abstract Logger getLogger();
 
 
     @Override
@@ -36,16 +51,16 @@ public abstract class BaseReceiver<K, V> extends AbstractReceiver<K, V> {
 
     @Override
     public void close() {
-        log.info("BaseReceiver.close() invoked. Waking up consumer");
+        getLogger().info("BaseReceiver.close() invoked. Waking up consumer");
         getConsumer().wakeup();
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
-            log.error("Interrupted exception catch block (EXCEPTION) : {}", e.getMessage());
+            getLogger().error("Interrupted exception catch block (EXCEPTION) : {}", e.getMessage());
             throw new RuntimeException("Interrupt occurred during receiver shutdown \n",e);
         }
-        log.info("Receiver and consumer closed");
+        getLogger().info("Receiver and consumer closed");
     }
 
 

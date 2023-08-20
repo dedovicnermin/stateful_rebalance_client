@@ -1,6 +1,7 @@
 package io.nermdev.kafka.stateful_rebalance_client.listener.state;
 
 
+import io.nermdev.kafka.stateful_rebalance_client.model.PayloadOrError;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.EventReceiver;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.ReceiveEvent;
 import io.nermdev.kafka.stateful_rebalance_client.util.LeaderboardUtils;

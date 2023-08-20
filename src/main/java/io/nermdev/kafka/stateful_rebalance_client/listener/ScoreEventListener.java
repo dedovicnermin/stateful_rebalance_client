@@ -29,7 +29,7 @@ public class ScoreEventListener implements EventListener<Long, ScoreEvent> {
         receiver.addListener(this);
         this.playerState = playerState;
         this.productState = productState;
-        this.scoreCardSender = new ScoreCardSender(ConfigExtractor.extractConfig(configs, AppClientType.PRODUCER, "scorecard"));
+        this.scoreCardSender = new ScoreCardSender(ConfigExtractor.extractConfig(configs, AppClientType.PRODUCER_SCORECARD));
 
     }
 
