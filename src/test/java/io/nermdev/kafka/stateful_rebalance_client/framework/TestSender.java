@@ -2,6 +2,7 @@ package io.nermdev.kafka.stateful_rebalance_client.framework;
 
 import io.nermdev.kafka.stateful_rebalance_client.sender.EventSender;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
 import java.util.concurrent.Future;
@@ -23,11 +24,11 @@ public class TestSender<K, V> implements EventSender<K, V> {
 
     @Override
     public Future<RecordMetadata> send(K key, V payload) {
-        return null;
+        return producer.send(new ProducerRecord<>(topic, key, payload));
     }
 
     @Override
     public void close() {
-
+        producer.close();
     }
 }

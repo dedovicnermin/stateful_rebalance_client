@@ -1,7 +1,6 @@
 package io.nermdev.kafka.stateful_rebalance_client.listener.state;
 
 import io.nermdev.kafka.stateful_rebalance_client.listener.EventListener;
-import io.nermdev.kafka.stateful_rebalance_client.model.PayloadOrError;
 import lombok.SneakyThrows;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ public abstract class StateEventListener<K, V> implements EventListener<K, V> {
         this.queryState = new HashMap<>();
     }
 
-    protected void printState(final String id) {
+    public void printState(final String id) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         getAppState().forEach((key, value) -> sb.append(key).append(":").append(value).append("\t"));

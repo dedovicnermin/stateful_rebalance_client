@@ -34,10 +34,10 @@ public abstract class AbstractContainerBaseTest {
         TestContainerUtils.prettyPrintEnvs(SR_CONTAINER);
     }
 
-    public KafkaContainer getKafkaContainer() {
+    public static KafkaContainer getKafkaContainer() {
         return KAFKA_CONTAINER;
     }
-    public SchemaRegistryContainer getSrContainer() {
+    public static SchemaRegistryContainer getSrContainer() {
         return SR_CONTAINER;
     }
 
