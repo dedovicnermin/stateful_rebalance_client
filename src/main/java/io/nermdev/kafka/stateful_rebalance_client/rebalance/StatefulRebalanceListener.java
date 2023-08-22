@@ -40,6 +40,7 @@ public class StatefulRebalanceListener<K, V> implements ConsumerRebalanceListene
                 .filter(k -> k.startsWith("security") || k.startsWith("ssl") || k.startsWith("bootstrap") || k.startsWith("schema") || k.startsWith("sasl"))
                 .forEach(key -> freeConsumerConfig.put(key, properties.get(key)));
         freeConsumerConfig.remove(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG);
+
         this.stateListener = stateListener;
         this.currOffsets = new HashMap<>();
         this.lastAssignment = List.of();
