@@ -30,8 +30,4 @@ public class ProductStateListener extends StateEventListener<Long, Product> {
                         )
                 );
     }
-
-    public void printState() {
-        printState("PRODUCT_STATE");
-    }
 }

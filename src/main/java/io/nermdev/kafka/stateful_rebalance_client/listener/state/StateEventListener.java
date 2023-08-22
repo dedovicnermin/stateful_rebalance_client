@@ -62,8 +62,6 @@ public abstract class StateEventListener<K, V> implements EventListener<K, V> {
         return Optional.ofNullable(topicPartition)
                 .map(state::get)
                 .map(m -> m.get(key));
-
-
     }
 
 }

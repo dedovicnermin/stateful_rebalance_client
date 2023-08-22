@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-class ProductStatefulReceiverTest extends AbstractContainerBaseTest {
+class ProductStatefulReceiverIT extends AbstractContainerBaseTest {
     static final String LEADERBOARD_PRODUCTS_TOPIC = "leaderboard.products";
     static KafkaConsumer<Long, PayloadOrError<Product>> testConsumer;
     static ProductStatefulReceiver productReceiver;
