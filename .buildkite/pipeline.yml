@@ -19,18 +19,24 @@ steps:
 
   - label: ":java::maven: Tests :one-does-not-simply:"
     commands:
+      - mvn compile
       - mvn surefire:test
       - mvn failsafe:integration-test
     plugins:
       - docker#v5.8.0:
           image: dedovicnermin/pscfk-buildkite:0.0.6
           propagate-uid-gid: true
+          volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+            - "$HOME/.m2:$HOME/.m2"
         
   - label: ":java::maven: Build Artifact :one-does-not-simply:"
     commands:
       - mvn package
+    artifact_paths: "target/*.jar"
     plugins:
       - docker#v5.8.0:
           image: dedovicnermin/pscfk-buildkite:0.0.6
           propagate-uid-gid: true
-
+          volumes:
+            - "$HOME/.m2:$HOME/.m2"

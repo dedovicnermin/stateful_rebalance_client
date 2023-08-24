@@ -2,6 +2,8 @@
 
 ## Stateful rebalance client
 
+>NOTE : Currently undergoing refactor. CFK-based builds are using pre-refactor artifacts
+
 - Client used to show how to handle state on startup / shutdown when Kafka Streams is not an option
 - When copartition is required, must have consistent partition reassignment to avoid rebuilding state.
 - free consumer for one partition topic
