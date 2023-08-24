@@ -18,7 +18,7 @@ public class SleepyRebalanceListener implements ConsumerRebalanceListener {
     public void onPartitionsAssigned(Collection<TopicPartition> collection) {
         log.info("SleepyRebalanceListener: ON_P_ASSIGNED invoked : {}", collection);
         try {
-            Thread.sleep(10000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
             log.info("ERROR IN SLEEPY REBALANCER ON partitions assigned cb : {}", e.getMessage());

@@ -36,7 +36,7 @@ class PlayerStatefulReceiverIT extends AbstractContainerBaseTest {
     static final Logger log = LoggerFactory.getLogger(PlayerStatefulReceiverIT.class);
     static final String SR_URL = "schema.registry.url";
     static final String PLAYER_RECEIVER_PREFIX = AppClientType.CONSUMER_PLAYER.getPrefix() + ".";
-    static final String LEADERBOARD_PLAYERS_TOPIC = "leaderboard.players";
+    static final String LEADERBOARD_PLAYERS_TOPIC = PlayerStatefulReceiver.PLAYERS_TOPIC;
 
     static KafkaConsumer<Long, PayloadOrError<Player>> testConsumer;
     static PlayerStatefulReceiver playerReceiver;

@@ -24,6 +24,15 @@ public interface EventSender<K,V> extends Closeable {
         }
     }
 
+    default RecordMetadata blockingSend(K key, V payload) throws SendException {
+        try {
+            return send(key, payload).get();
+        }  catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+            throw new SendException(e.getCause());
+        }
+    }
+
     @Override
     void close();
 }

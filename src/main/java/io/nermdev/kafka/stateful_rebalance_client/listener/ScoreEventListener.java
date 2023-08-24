@@ -25,11 +25,12 @@ public class ScoreEventListener implements EventListener<Long, ScoreEvent> {
     private final PlayerStateListener playerState;
     private final ScoreCardSender scoreCardSender;
 
-    public ScoreEventListener(final ScoreEventReceiver receiver, final ProductStateListener productState, final PlayerStateListener playerState, final Map<String, Object> configs) {
+    public ScoreEventListener(final ScoreEventReceiver receiver, final ProductStateListener productState, final PlayerStateListener playerState, final ScoreCardSender scoreCardSender) {
         receiver.addListener(this);
         this.playerState = playerState;
         this.productState = productState;
-        this.scoreCardSender = new ScoreCardSender(ConfigExtractor.extractConfig(configs, AppClientType.PRODUCER_SCORECARD));
+        this.scoreCardSender = scoreCardSender;
+//        this.scoreCardSender = new ScoreCardSender(ConfigExtractor.extractConfig(configs, AppClientType.PRODUCER_SCORECARD));
 
     }
 

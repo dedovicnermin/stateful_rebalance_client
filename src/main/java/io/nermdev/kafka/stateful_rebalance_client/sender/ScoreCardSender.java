@@ -6,31 +6,28 @@ import io.nermdev.kafka.stateful_rebalance_client.serializer.ScoreCardSerializer
 import io.nermdev.schemas.avro.leaderboards.ScoreCard;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.LongSerializer;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
 public class ScoreCardSender implements EventSender<Long, ScoreCard> {
-    private final Producer<Long, ScoreCard> producer;
+    public static final String LEADERBOARD_SCORECARDS_TOPIC = "leaderboard.scorecards";
+    private final KafkaProducer<Long, ScoreCard> producer;
     private final String topic;
 
     public ScoreCardSender(final Map<String, Object> producerConfig) {
-        this.topic = "leaderboard.scorecards";
-        Map<String, Object> map = new HashMap<>();
-        map.put("key.serializer", LongSerializer.class);
+        this.topic = LEADERBOARD_SCORECARDS_TOPIC;
+        producerConfig.put("key.serializer", LongSerializer.class);
 
-        map.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
-        map.put(ProducerConfig.ACKS_CONFIG, "all");
-        map.putAll(producerConfig);
-        map.put(KafkaAvroSerializerConfig.AVRO_REFLECTION_ALLOW_NULL_CONFIG, true);
-        producer = new KafkaProducer<>(map, new LongSerializer(), new ScoreCardSerializer(map));
+        producerConfig.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        producerConfig.put(ProducerConfig.ACKS_CONFIG, "all");
+        producerConfig.put(KafkaAvroSerializerConfig.AVRO_REFLECTION_ALLOW_NULL_CONFIG, true);
+        producer = new KafkaProducer<>(producerConfig, new LongSerializer(), new ScoreCardSerializer(producerConfig));
     }
 
     @Override

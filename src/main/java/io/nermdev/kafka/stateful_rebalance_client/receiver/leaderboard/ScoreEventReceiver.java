@@ -5,8 +5,6 @@ import io.nermdev.kafka.stateful_rebalance_client.model.PayloadOrError;
 import io.nermdev.kafka.stateful_rebalance_client.rebalance.SleepyRebalanceListener;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.BaseReceiver;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.ReceiveEvent;
-import io.nermdev.kafka.stateful_rebalance_client.serializer.AvroPayloadDeserializer;
-import io.nermdev.kafka.stateful_rebalance_client.util.AppClientType;
 import io.nermdev.kafka.stateful_rebalance_client.util.LeaderboardUtils;
 import io.nermdev.schemas.avro.leaderboards.ScoreEvent;
 import lombok.SneakyThrows;
@@ -16,46 +14,37 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import org.apache.kafka.common.serialization.LongDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
+    public static final String LEADERBOARD_SCORES_TOPIC = "leaderboard.scores";
     private static final Logger log = LoggerFactory.getLogger(ScoreEventReceiver.class);
 
 
     private final  KafkaConsumer<Long, PayloadOrError<ScoreEvent>> consumer;
     private final PlayerStatefulReceiver playerReceiver;
-    private final Duration duration;
-
-    public ScoreEventReceiver(final Map<String, Object> config, final PlayerStatefulReceiver playerReceiver, final KafkaConsumer<Long, PayloadOrError<ScoreEvent>> consumer) {
-        this(config, playerReceiver, consumer, Duration.ofMillis(500));
-    }
 
 
     public ScoreEventReceiver(
             final Map<String, Object> config,
             final PlayerStatefulReceiver playerReceiver,
-            final KafkaConsumer<Long, PayloadOrError<ScoreEvent>> consumer,
-            final Duration duration
+            final KafkaConsumer<Long, PayloadOrError<ScoreEvent>> consumer
     ) {
         super(config);
-//        this.avroDeserializer = new AvroPayloadDeserializer<>(consumerConfig);
         this.consumer = consumer;
         this.playerReceiver = playerReceiver;
-        this.duration = duration;
         LeaderboardUtils.configureForK8(consumerConfig, "score");
     }
 
     @Override
     protected String getTopicName() {
-        return "leaderboard.scores";
+        return LEADERBOARD_SCORES_TOPIC;
     }
 
 
@@ -94,13 +83,14 @@ public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
     @Override
     public void run() {
         consumerConfig.put("client.id", "consumer-scores" + System.getenv("POD_NAME"));
-//        consumer = new KafkaConsumer<>(consumerConfig, longDeserializer, avroPayloadDeserializer);
         consumer.subscribe(Collections.singleton(topic), new SleepyRebalanceListener());
-        final Duration pto = Duration.ofMillis(500);
-
+        while (playerReceiver.getStateListener().getAppState().size() == 0) {
+            log.info("Waiting for ");
+            Thread.sleep(1000L);
+        }
         try {
             while (true) {
-                final ConsumerRecords<Long, PayloadOrError<ScoreEvent>> consumerRecords = consumer.poll(pto);
+                final ConsumerRecords<Long, PayloadOrError<ScoreEvent>> consumerRecords = consumer.poll(pollDuration);
                 if (consumerRecords.isEmpty()) continue;
                 if (failsCoPartitionRequirement(consumer.assignment())) consumer.enforceRebalance();
                 for (ConsumerRecord<Long, PayloadOrError<ScoreEvent>> cr : consumerRecords) {

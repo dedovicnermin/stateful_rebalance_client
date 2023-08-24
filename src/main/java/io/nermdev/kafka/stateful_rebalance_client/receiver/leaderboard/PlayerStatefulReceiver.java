@@ -25,6 +25,7 @@ import java.util.Set;
 
 public class PlayerStatefulReceiver extends BaseStatefulReceiver<Long, Player> {
     private static final Logger log = LoggerFactory.getLogger(PlayerStatefulReceiver.class);
+    public static final String PLAYERS_TOPIC = "leaderboard.players";
     private final KafkaConsumer<Long, PayloadOrError<Player>> consumer;
     private final PlayerStateListener stateListener;
     private Set<TopicPartition> currAssignment;
@@ -78,7 +79,7 @@ public class PlayerStatefulReceiver extends BaseStatefulReceiver<Long, Player> {
 
     @Override
     protected String getTopicName() {
-        return "leaderboard.players";
+        return PLAYERS_TOPIC;
     }
 
     @Override
