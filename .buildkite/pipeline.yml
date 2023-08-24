@@ -17,12 +17,20 @@ steps:
         image: dedovicnermin/pscfk-buildkite:0.0.6
         propagate-uid-gid: true
 
-  - label: ":java::maven: mvn clean install :one-does-not-simply:"
+  - label: ":java::maven: Tests :one-does-not-simply:"
     commands:
-      - mvn clean install
-      - mvn clean
+      - mvn surefire:test
+      - mvn failsafe:integration-test
     plugins:
       - docker#v5.8.0:
           image: dedovicnermin/pscfk-buildkite:0.0.6
           propagate-uid-gid: true
         
+  - label: ":java::maven: Build Artifact :one-does-not-simply:"
+    commands:
+      - mvn package
+    plugins:
+      - docker#v5.8.0:
+          image: dedovicnermin/pscfk-buildkite:0.0.6
+          propagate-uid-gid: true
+
