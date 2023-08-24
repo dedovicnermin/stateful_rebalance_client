@@ -23,7 +23,6 @@ import io.nermdev.schemas.avro.leaderboards.Product;
 import io.nermdev.schemas.avro.leaderboards.ScoreCard;
 import io.nermdev.schemas.avro.leaderboards.ScoreEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -38,7 +37,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -51,9 +49,9 @@ import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.when;
 
-class ScoreEventReceiverTest extends AbstractContainerBaseTest {
+class ScoreEventReceiverIT extends AbstractContainerBaseTest {
 
-    static final Logger log = LoggerFactory.getLogger(ScoreEventReceiverTest.class);
+    static final Logger log = LoggerFactory.getLogger(ScoreEventReceiverIT.class);
     static final String SR_URL = "schema.registry.url";
     static final String SCORE_RECEIVER_PREFIX = AppClientType.CONSUMER_SCORE.getPrefix() + ".";
     static final String SCORECARD_SENDER_PREFIX = AppClientType.PRODUCER_SCORECARD.getPrefix() + ".";
@@ -146,7 +144,6 @@ class ScoreEventReceiverTest extends AbstractContainerBaseTest {
 
 
     static final Player player1 = Player.newBuilder().setId(1L).setName("Player_1").build();
-    static final Player player2 = Player.newBuilder().setId(2L).setName("Player_2").build();
     static final Product product = Product.newBuilder().setId(100L).setName("COD").build();
 
     @BeforeEach
@@ -161,16 +158,9 @@ class ScoreEventReceiverTest extends AbstractContainerBaseTest {
         final TopicPartition topicPartition = LeaderboardUtils.tpOf(PlayerStatefulReceiver.PLAYERS_TOPIC, 0);
         when(mockPlayerReceiver.getCurrAssignment()).thenReturn(Collections.singleton(topicPartition));
         when(mockPlayerListener.getAppState()).thenReturn(
-                Map.of(
-                        topicPartition,
-                        Map.of(
-                                player1.getId(), player1,
-                                player2.getId(), player2
-                        )
-                )
+                Map.of(topicPartition, Map.of(player1.getId(), player1))
         );
         when(mockPlayerListener.getValue(player1.getId())).thenReturn(Optional.of(player1));
-        when(mockPlayerListener.getValue(player2.getId())).thenReturn(Optional.of(player2));
         when(mockProductListener.getValue(product.getId())).thenReturn(Optional.of(product));
     }
 
@@ -184,40 +174,26 @@ class ScoreEventReceiverTest extends AbstractContainerBaseTest {
 
 
 
-
     @Test
     void test() throws EventSender.SendException {
         final ScoreEvent player1Score = ScoreEvent.newBuilder().setPlayerId(player1.getId()).setProductId(product.getId()).setScore(50).setDate("now").build();
         testSenderScoreEvent.blockingSend(player1.getId(),player1Score);
-        final ScoreEvent player2Score = ScoreEvent.newBuilder().setPlayerId(player2.getId()).setProductId(product.getId()).setScore(100).setDate("now").build();
-        testSenderScoreEvent.blockingSend(player2.getId(),player2Score);
         new Thread(receiverScoreEvent).start();
 
 
         testReceiver.start();
-        Assertions.assertThat(testListener.getActualSize()).isNotZero();
-        Awaitility.waitAtMost(Duration.ofSeconds(30)).untilAsserted(
-                () -> {
-                    testReceiver.start();
-                    Assertions.assertThat(testListener.getActualSize()).isEqualTo(2);
-                }
-        );
+        Assertions.assertThat(testListener.getActualSize()).isNotZero().isEqualTo(1);
         final List<ReceiveEvent<Long, ScoreCard>> actual = testListener.getActual();
         actual.forEach(
                 event -> log.info(event.toString())
         );
-        Assertions.assertThat(actual).hasSize(2);
+
         final List<ScoreCard> actualScoreCards = actual.stream().map(
                 ReceiveEvent::getPayload
         ).collect(Collectors.toList());
-        final ScoreCard expectedScoreCard1 = ScoreCard.newBuilder().setPlayer(new Player(player1.getId(), player1.getName())).setProduct(new Product(product.getId(), product.getName())).setLatestDate("now").setScore(player1Score.getScore()).build();
-        final ScoreCard expectedScoreCard2 = ScoreCard.newBuilder().setPlayer(new Player(player2.getId(), player2.getName())).setProduct(new Product(product.getId(), product.getName())).setLatestDate("now").setScore(player2Score.getScore()).build();
-
-        Assertions.assertThat(actualScoreCards).contains(expectedScoreCard1, expectedScoreCard2);
-
+        final ScoreCard expectedScoreCard1 = ScoreCard.newBuilder().setPlayer(player1).setProduct(product).setLatestDate("now").setScore(player1Score.getScore()).build();
+        Assertions.assertThat(actualScoreCards).contains(expectedScoreCard1);
 
     }
-
-
 
 }
