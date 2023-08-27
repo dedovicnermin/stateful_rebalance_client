@@ -1,0 +1,1 @@
+{"type":"record","name":"Product","namespace":"io.nermdev.schemas.avro.leaderboards","fields":[{"name":"id","type":"long"},{"name":"name","type":"string"}]}

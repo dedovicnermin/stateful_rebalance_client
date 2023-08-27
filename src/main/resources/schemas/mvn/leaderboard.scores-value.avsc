@@ -1,0 +1,1 @@
+{"type":"record","name":"ScoreEvent","namespace":"io.nermdev.schemas.avro.leaderboards","fields":[{"name":"playerId","type":{"type":"long","arg.properties":{"range":{"min":1,"max":1000}}}},{"name":"productId","type":{"type":"long","arg.properties":{"range":{"min":10000,"max":10473}}}},{"name":"score","type":{"type":"double","range":{"max":10.0}}},{"name":"date","type":"string"}]}

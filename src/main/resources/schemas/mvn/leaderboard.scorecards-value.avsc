@@ -1,0 +1,1 @@
+{"type":"record","name":"ScoreCard","namespace":"io.nermdev.schemas.avro.leaderboards","fields":[{"name":"player","type":"Player"},{"name":"product","type":"Product"},{"name":"score","type":"double"},{"name":"latestDate","type":"string"}]}

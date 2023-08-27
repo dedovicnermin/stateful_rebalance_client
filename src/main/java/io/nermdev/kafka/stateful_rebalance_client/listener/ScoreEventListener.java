@@ -6,8 +6,6 @@ import io.nermdev.kafka.stateful_rebalance_client.listener.state.ProductStateLis
 import io.nermdev.kafka.stateful_rebalance_client.receiver.ReceiveEvent;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.leaderboard.ScoreEventReceiver;
 import io.nermdev.kafka.stateful_rebalance_client.sender.ScoreCardSender;
-import io.nermdev.kafka.stateful_rebalance_client.util.AppClientType;
-import io.nermdev.kafka.stateful_rebalance_client.util.ConfigExtractor;
 import io.nermdev.schemas.avro.leaderboards.Player;
 import io.nermdev.schemas.avro.leaderboards.Product;
 import io.nermdev.schemas.avro.leaderboards.ScoreCard;
@@ -15,7 +13,6 @@ import io.nermdev.schemas.avro.leaderboards.ScoreEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -30,8 +27,6 @@ public class ScoreEventListener implements EventListener<Long, ScoreEvent> {
         this.playerState = playerState;
         this.productState = productState;
         this.scoreCardSender = scoreCardSender;
-//        this.scoreCardSender = new ScoreCardSender(ConfigExtractor.extractConfig(configs, AppClientType.PRODUCER_SCORECARD));
-
     }
 
 

@@ -83,8 +83,10 @@ public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
     @Override
     public void run() {
         consumerConfig.put("client.id", "consumer-scores" + System.getenv("POD_NAME"));
+        log.debug("Subscribing to topic : {}", topic);
         consumer.subscribe(Collections.singleton(topic), new SleepyRebalanceListener());
         while (playerReceiver.getStateListener().getAppState().size() == 0) {
+            log.debug("Confirmed player state is empty. Waiting...");
             log.info("Waiting for ");
             Thread.sleep(1000L);
         }
@@ -92,9 +94,15 @@ public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
             while (true) {
                 final ConsumerRecords<Long, PayloadOrError<ScoreEvent>> consumerRecords = consumer.poll(pollDuration);
                 if (consumerRecords.isEmpty()) continue;
-                if (failsCoPartitionRequirement(consumer.assignment())) consumer.enforceRebalance();
+                if (failsCoPartitionRequirement(consumer.assignment())) {
+                    log.debug("CoPartition requirement failed. Enforcing a re-balance now...");
+                    consumer.enforceRebalance();
+                    continue;
+                }
+
                 for (ConsumerRecord<Long, PayloadOrError<ScoreEvent>> cr : consumerRecords) {
                     final ReceiveEvent<Long, ScoreEvent> scoreReceiveEvent = LeaderboardUtils.createReceiveEvent(cr);
+                    log.debug("Preparing to fire : {}", scoreReceiveEvent);
                     fire(scoreReceiveEvent);
                 }
                 consumer.commitAsync();

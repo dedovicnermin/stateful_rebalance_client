@@ -41,3 +41,4 @@ build/
 src/target
 
 
+/src/test/java/io/nermdev/kafka/stateful_rebalance_client/deleteme/

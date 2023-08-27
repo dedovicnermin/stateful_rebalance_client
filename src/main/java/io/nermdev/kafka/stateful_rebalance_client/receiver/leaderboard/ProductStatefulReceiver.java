@@ -36,7 +36,9 @@ public class ProductStatefulReceiver extends BaseStatefulReceiver<Long, Product>
     public void run() {
         consumerConfig.put("client.id", consumerConfig.get("client.id") + "-" + System.getenv("POD_NAME"));
         final TopicPartition tp = new TopicPartition(topic, 0);
+        log.debug("Assigning consumer to TP : {}", tp);
         consumer.assign(Collections.singleton(tp));
+        log.debug("Invoking seek to beginning on TP : {}", tp);
         consumer.seekToBeginning(Collections.singleton(tp));
 
 
@@ -46,6 +48,7 @@ public class ProductStatefulReceiver extends BaseStatefulReceiver<Long, Product>
                 final ConsumerRecords<Long, PayloadOrError<Product>> consumerRecords = consumer.poll(pollDuration);
                 for (ConsumerRecord<Long, PayloadOrError<Product>> cr : consumerRecords) {
                     final ReceiveEvent<Long, Product> productReceiveEvent = LeaderboardUtils.createReceiveEvent(cr);
+                    log.debug("Preparing to fire : {}", productReceiveEvent);
                     fire(productReceiveEvent);
                 }
             }

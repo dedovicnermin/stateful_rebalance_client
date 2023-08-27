@@ -5,10 +5,10 @@ package io.nermdev.kafka.stateful_rebalance_client;
 import io.nermdev.kafka.stateful_rebalance_client.listener.ScoreEventListener;
 import io.nermdev.kafka.stateful_rebalance_client.listener.state.PlayerStateListener;
 import io.nermdev.kafka.stateful_rebalance_client.listener.state.ProductStateListener;
-import io.nermdev.kafka.stateful_rebalance_client.model.PayloadOrError;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.leaderboard.PlayerStatefulReceiver;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.leaderboard.ProductStatefulReceiver;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.leaderboard.ScoreEventReceiver;
+import io.nermdev.kafka.stateful_rebalance_client.sender.ScoreCardSender;
 import io.nermdev.kafka.stateful_rebalance_client.serializer.AvroPayloadDeserializer;
 import io.nermdev.kafka.stateful_rebalance_client.util.AppClientType;
 import io.nermdev.kafka.stateful_rebalance_client.util.ConfigExtractor;
@@ -38,40 +38,81 @@ public class Application {
         if (args.length < 1) throw new IllegalArgumentException("Pass path to application.properties");
         final Properties properties = new Properties();
         loadConfig(args[0], properties);
-        log.info("PROPERTIES: {}", properties);
+        log.info("APP CONFIG : {}", properties);
 
-
-
-        final Map<String, Object> consumerConfig = propertiesToMap(properties);
-        final Map<String, Object> productReceiverConfig = extractClientConfig(consumerConfig, AppClientType.CONSUMER_PRODUCT);
-        final Map<String, Object> playerReceiverConfig = extractClientConfig(consumerConfig, AppClientType.CONSUMER_PLAYER);
-        final Map<String, Object> scoreReceiverConfig = extractClientConfig(consumerConfig, AppClientType.CONSUMER_SCORE);
-
-
+        final Map<String, Object> appConfig = propertiesToMap(properties);
+        final Map<String, Object> productReceiverConfig = extractClientConfig(appConfig, AppClientType.CONSUMER_PRODUCT);
+        final Map<String, Object> playerReceiverConfig = extractClientConfig(appConfig, AppClientType.CONSUMER_PLAYER);
+        final Map<String, Object> scoreReceiverConfig = extractClientConfig(appConfig, AppClientType.CONSUMER_SCORE);
+        final Map<String, Object> scoreCardSenderConfig = extractClientConfig(appConfig, AppClientType.PRODUCER_SCORECARD);
 
         final AvroPayloadDeserializer<Product> productDeserializer = new AvroPayloadDeserializer<>(productReceiverConfig);
         final AvroPayloadDeserializer<Player> playerDeserializer = new AvroPayloadDeserializer<>(playerReceiverConfig);
         final AvroPayloadDeserializer<ScoreEvent> scoreEventDeserializer = new AvroPayloadDeserializer<>(scoreReceiverConfig);
 
-
-
-
-        final ProductStatefulReceiver productReceiver = new ProductStatefulReceiver(productReceiverConfig, new KafkaConsumer<>(productReceiverConfig, longDeserializer, productDeserializer));
+        /*
+         * Subscribe to single partition topic containing product entries
+         */
+        final ProductStatefulReceiver productReceiver = new ProductStatefulReceiver(
+                productReceiverConfig,
+                new KafkaConsumer<>(productReceiverConfig, longDeserializer, productDeserializer)
+        );
         new Thread(productReceiver).start();
-        Runtime.getRuntime().addShutdownHook(new Thread(new ConsumerCloser<>(productReceiver)));
 
-        final PlayerStatefulReceiver playerReceiver = new PlayerStatefulReceiver(playerReceiverConfig, new KafkaConsumer<>(playerReceiverConfig, longDeserializer, playerDeserializer));
+        /*
+         * Subscribe to multi-partition topic containing player entries
+         */
+        final PlayerStatefulReceiver playerReceiver = new PlayerStatefulReceiver(
+                playerReceiverConfig,
+                new KafkaConsumer<>(playerReceiverConfig, longDeserializer, playerDeserializer)
+        );
         new Thread(playerReceiver).start();
+
+        /*
+         * Subscribe to multi-partition topic containing score events keyed by playerId
+         */
+        final ScoreEventReceiver scoreEventReceiver = new ScoreEventReceiver(
+                scoreReceiverConfig,
+                playerReceiver,
+                new KafkaConsumer<>(scoreReceiverConfig, longDeserializer, scoreEventDeserializer)
+        );
+        new Thread(scoreEventReceiver).start();
+
+
+        /*
+         * Responsible for sending agg.'d scoreCards keyed by playerId
+         */
+        final ScoreCardSender scoreCardSender = new ScoreCardSender(scoreCardSenderConfig);
+        new ScoreEventListener(
+                scoreEventReceiver,
+                (ProductStateListener) productReceiver.getStateListener(),
+                (PlayerStateListener) playerReceiver.getStateListener(),
+                scoreCardSender
+        );
+
+        onShutdownHooks(
+                productDeserializer,
+                playerDeserializer,
+                scoreEventDeserializer,
+                productReceiver,
+                playerReceiver,
+                scoreEventReceiver,
+                scoreCardSender
+        );
+    }
+
+    private static void onShutdownHooks(AvroPayloadDeserializer<Product> productDeserializer, AvroPayloadDeserializer<Player> playerDeserializer, AvroPayloadDeserializer<ScoreEvent> scoreEventDeserializer, ProductStatefulReceiver productReceiver, PlayerStatefulReceiver playerReceiver, ScoreEventReceiver scoreEventReceiver, ScoreCardSender scoreCardSender) {
+        Runtime.getRuntime().addShutdownHook(new Thread(new ConsumerCloser<>(productReceiver)));
         Runtime.getRuntime().addShutdownHook(new Thread(new ConsumerCloser<>(playerReceiver)));
-
-
-//        Thread.sleep(10000);
-//        final ScoreEventReceiver scoreEventReceiver = new ScoreEventReceiver(propertiesToMap(properties), playerReceiver);
-//        new Thread(scoreEventReceiver).start();
-//        Runtime.getRuntime().addShutdownHook(new Thread(new ConsumerCloser<>(scoreEventReceiver)));
-
-//        new ScoreEventListener(scoreEventReceiver, (ProductStateListener) productReceiver.getStateListener(), (PlayerStateListener) playerReceiver.getStateListener(), propertiesToMap(properties));
-
+        Runtime.getRuntime().addShutdownHook(new Thread(new ConsumerCloser<>(scoreEventReceiver)));
+        Runtime.getRuntime().addShutdownHook(new Thread(scoreCardSender::close));
+        Runtime.getRuntime().addShutdownHook(new Thread(
+                () -> {
+                    productDeserializer.close();
+                    playerDeserializer.close();
+                    scoreEventDeserializer.close();
+                }
+        ));
     }
 
 
@@ -80,15 +121,15 @@ public class Application {
                 final FileInputStream inputStream = new FileInputStream(file)
         ) {
             properties.load(inputStream);
-            properties.put("client.id", getClientIdOrDefault("stateful-rebalance-client"));
+            properties.put("client.id", getClientIdOrDefault());
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            throw new RuntimeException(e);
+            System.exit(1);
         }
     }
 
-    static String getClientIdOrDefault(final String defaultValue) {
-        return System.getenv().getOrDefault("POD_NAME", defaultValue);
+    static String getClientIdOrDefault() {
+        return System.getenv().getOrDefault("POD_NAME", "stateful-rebalance-client");
     }
 
     public static Map<String,Object> propertiesToMap(final Properties properties) {
@@ -112,8 +153,4 @@ public class Application {
                 return config;
         }
     }
-//    public static <V> KafkaConsumer<Long, PayloadOrError<V>> consumerInstance(final Map<String, Object> config) {
-//        final AvroPayloadDeserializer<V> payloadDeserializer = new AvroPayloadDeserializer<>(config);
-//        return new KafkaConsumer<>(config, longDeserializer, payloadDeserializer);
-//    }
 }

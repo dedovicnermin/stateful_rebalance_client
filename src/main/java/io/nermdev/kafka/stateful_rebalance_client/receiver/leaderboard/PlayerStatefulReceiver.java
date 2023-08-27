@@ -8,6 +8,7 @@ import io.nermdev.kafka.stateful_rebalance_client.listener.state.StateEventListe
 import io.nermdev.kafka.stateful_rebalance_client.model.PayloadOrError;
 import io.nermdev.kafka.stateful_rebalance_client.rebalance.StatefulRebalanceListener;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.BaseStatefulReceiver;
+import io.nermdev.kafka.stateful_rebalance_client.receiver.ReceiveEvent;
 import io.nermdev.kafka.stateful_rebalance_client.util.LeaderboardUtils;
 import io.nermdev.schemas.avro.leaderboards.Player;
 import lombok.SneakyThrows;
@@ -46,6 +47,7 @@ public class PlayerStatefulReceiver extends BaseStatefulReceiver<Long, Player> {
 
         consumerConfig.put("client.id", consumerConfig.get("client.id") + "-" + System.getenv("POD_NAME"));
         final StatefulRebalanceListener<Long, Player> rebalanceListener = new StatefulRebalanceListener<>(consumer, consumerConfig, Application.longDeserializer, stateListener);
+        log.debug("Subscribing to topic : {}", topic);
         consumer.subscribe(Collections.singleton(topic), rebalanceListener);
 
         try {
@@ -53,7 +55,9 @@ public class PlayerStatefulReceiver extends BaseStatefulReceiver<Long, Player> {
                 final ConsumerRecords<Long, PayloadOrError<Player>> consumerRecords = consumer.poll(pollDuration);
                 currAssignment = consumer.assignment();
                 for (ConsumerRecord<Long, PayloadOrError<Player>> cr : consumerRecords) {
-                    fire(LeaderboardUtils.createReceiveEvent(cr));
+                    final ReceiveEvent<Long, Player> receiveEvent = LeaderboardUtils.createReceiveEvent(cr);
+                    log.debug("Preparing to fire : {}", receiveEvent);
+                    fire(receiveEvent);
                     rebalanceListener.addOffsetsToTrack(cr.topic(), cr.partition(), cr.offset());
                 }
                 consumer.commitAsync();
