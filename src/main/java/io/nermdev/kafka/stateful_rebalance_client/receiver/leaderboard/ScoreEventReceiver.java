@@ -2,7 +2,7 @@ package io.nermdev.kafka.stateful_rebalance_client.receiver.leaderboard;
 
 
 import io.nermdev.kafka.stateful_rebalance_client.model.PayloadOrError;
-import io.nermdev.kafka.stateful_rebalance_client.rebalance.SleepyRebalanceListener;
+import io.nermdev.kafka.stateful_rebalance_client.rebalance.StatelessRebalanceListener;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.BaseReceiver;
 import io.nermdev.kafka.stateful_rebalance_client.receiver.ReceiveEvent;
 import io.nermdev.kafka.stateful_rebalance_client.util.LeaderboardUtils;
@@ -84,19 +84,22 @@ public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
     public void run() {
         consumerConfig.put("client.id", "consumer-scores" + System.getenv("POD_NAME"));
         log.debug("Subscribing to topic : {}", topic);
-        consumer.subscribe(Collections.singleton(topic), new SleepyRebalanceListener());
+        final StatelessRebalanceListener rebalanceListener = new StatelessRebalanceListener();
+        consumer.subscribe(Collections.singleton(topic), rebalanceListener);
         while (playerReceiver.getStateListener().getAppState().size() == 0) {
             log.debug("Confirmed player state is empty. Waiting...");
-            log.info("Waiting for ");
+            log.info("Waiting for player state to be non-empty");
             Thread.sleep(1000L);
         }
+        log.info("Player state is no longer empty : {}", playerReceiver.getStateListener().getAppState());
         try {
             while (true) {
                 final ConsumerRecords<Long, PayloadOrError<ScoreEvent>> consumerRecords = consumer.poll(pollDuration);
                 if (consumerRecords.isEmpty()) continue;
                 if (failsCoPartitionRequirement(consumer.assignment())) {
-                    log.debug("CoPartition requirement failed. Enforcing a re-balance now...");
-                    consumer.enforceRebalance();
+                    log.info("CoPartition requirement failed. Enforcing a re-balance now...");
+                    consumer.unsubscribe();
+                    consumer.subscribe(Collections.singleton(topic), rebalanceListener);
                     continue;
                 }
 
@@ -121,7 +124,6 @@ public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
                 countDownLatch.countDown();
                 log.info("The scoreevent consuemr is now gracefully closed");
             }
-//            avroPayloadDeserializer.close();
 
         }
     }
@@ -134,6 +136,7 @@ public class ScoreEventReceiver extends BaseReceiver<Long, ScoreEvent> {
         final Set<Integer> scorePartitions = currAssignment.stream()
                 .map(TopicPartition::partition)
                 .collect(Collectors.toSet());
+        log.debug("CoPartitionRequirement Status - PlayerPartitions ({}) - ScorePartitions ({})", playerPartitions, scorePartitions);
         return !playerPartitions.equals(scorePartitions);
     }
 }
