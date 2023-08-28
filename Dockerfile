@@ -1,51 +1,17 @@
-FROM maven:3-adoptopenjdk-11 AS packager
+FROM maven:3.9.3-amazoncorretto-11 AS packager
 ADD ./pom.xml pom.xml
-RUN mvn dependency:go-offline
 ADD ./src src
-RUN mvn package
-
-
-FROM amazoncorretto:11.0.17-alpine as corretto-jdk
-
-RUN apk add --no-cache binutils
-
-COPY --from=packager target/ target/
-
-RUN $JAVA_HOME/bin/jdeps \
-  --ignore-missing-deps \
-  -q \
-  --multi-release 11 \
-  --print-module-deps \
-  --class-path target/* \
-  target/stateful-rebalance-client-jar-with-dependencies.jar > jre-deps.info
+RUN mvn clean install package -DskipTests
 
 
 
 
 
-RUN $JAVA_HOME/bin/jlink \
-    --verbose \
-    --add-modules $(cat jre-deps.info),java.management,jdk.management.agent,jdk.httpserver \
-    --strip-debug \
-    --no-man-pages \
-    --no-header-files \
-    --compress=2 \
-    --output /customjre
-
-
-
-
-FROM alpine:latest
-ENV JAVA_HOME=/jre
-ENV PATH="${JAVA_HOME}/bin:${PATH}"
-RUN apk add --no-cache curl
-
-# JRE from base image
-COPY --from=corretto-jdk /customjre $JAVA_HOME
+FROM openjdk:11.0.16-jre-buster
 
 # add user
-ARG APPLICATION_USER=confluent
-RUN adduser --no-create-home -u 1000 -D $APPLICATION_USER
+ARG APPLICATION_USER=nermdev
+RUN useradd --no-create-home -u 1000 $APPLICATION_USER
 
 # config working directory
 RUN mkdir /app && \
@@ -54,7 +20,7 @@ RUN mkdir /app && \
 USER 1000
 COPY --from=packager --chown=1000:1000 target/stateful-rebalance-client-jar-with-dependencies.jar /app/app.jar
 COPY --from=packager --chown=1000:1000 target/classes/log4j.properties /app/log4j.properties
-COPY --chown=1000:1000 ./exporter/jmx_prometheus_javaagent-0.17.0.jar /app/jmx_prometheus_javaagent.jar
+COPY --chown=1000:1000 ./exporter/jmx_prometheus_javaagent-0.19.0.jar /app/jmx_prometheus_javaagent.jar
 COPY --chown=1000:1000 ./exporter/kafka_client.yml /app/kafka_client.yml
 
 ENV JAVA_TOOL_OPTIONS "-Dcom.sun.management.jmxremote.ssl=false \
