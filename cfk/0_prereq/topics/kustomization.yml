@@ -12,3 +12,13 @@ resources:
   - leaderboard.products.yml
   - leaderboard.scores.yml
   - leaderboard.scorecards.yml
+
+patches:
+  - target:
+      group: platform.confluent.io
+      version: v1beta1
+      kind: KafkaTopic
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3

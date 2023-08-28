@@ -6,7 +6,7 @@ metadata:
     prometheus.io/port: "7778"
     prometheus.io/scrape: "true"
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       application: stateful-rebalance-client
@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: dedovicnermin/stateful-rebalance-client:3.4.0
+          image: dedovicnermin/stateful-rebalance-client:3.4.2
           imagePullPolicy: Always
           env:
             - name: POD_NAME
